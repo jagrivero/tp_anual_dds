@@ -57,11 +57,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     public ColeccionDTO agregar(ColeccionDTO coleccionDTO) {
         ColeccionDTO comparable = this.buscarColeccionXId(coleccionDTO.nombre());
         if(!Objects.isNull(comparable)){
-            if(Objects.equals(comparable.descripcion(),coleccionDTO.descripcion())){
-                throw new IllegalArgumentException("La coleccion ya fue agregada anteriormente");
-            } else {
-                this.coleccionRepository.delete(this.coleccionRepository.findById(comparable.nombre()));
-            }
+            throw new IllegalArgumentException("La coleccion ya fue agregada anteriormente");
         }
         System.out.println("CORRECTO AGREGADO DE COLECCION");
         return coleccionMapper.map(this.coleccionRepository.save(coleccionMapper.map(coleccionDTO)));   
