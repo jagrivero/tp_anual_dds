@@ -55,7 +55,7 @@ public class ColeccionController {
 
     @PostMapping
     public ResponseEntity<ColeccionDTO> crearColeccion(@RequestBody Coleccion coleccion) {
-        ColeccionDTO coleccionDTO = new ColeccionDTO(coleccion.getId(), coleccion.getDescripcion());
+        ColeccionDTO coleccionDTO = new ColeccionDTO(coleccion.getNombre(), coleccion.getDescripcion());
         try {
             return ResponseEntity.ok(fachadaFuente.agregar(coleccionDTO));
         } catch (Exception e){

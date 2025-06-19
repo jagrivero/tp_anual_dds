@@ -23,7 +23,7 @@ public class ColeccionRepository {
     }
     public Coleccion findById(String id_coleccion){
        Coleccion coleccionEncontrada = colecciones.stream()
-        .filter(coleccion -> coleccion.getId().equals(id_coleccion))
+        .filter(coleccion -> coleccion.getNombre().equals(id_coleccion))
         .findFirst()
         .orElse(null);
        return coleccionEncontrada;

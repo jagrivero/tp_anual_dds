@@ -8,18 +8,18 @@ import lombok.Data;
 @Entity
 public class Coleccion {
     @Id
-    private String id;
+    private String nombre;
     @Column
     private String descripcion;
     public Coleccion(String name,String description){
-        this.id = name;
+        this.nombre = name;
         this.descripcion = description;
     }
-    public String getId(){
-        return this.id;
+    public String getNombre(){
+        return this.nombre;
     }
-    public void setId(String nuevo_id){
-        this.id = nuevo_id;
+    public void setNombre(String nuevo_id){
+        this.nombre = nuevo_id;
     }
     public String getDescripcion(){
         return this.descripcion;

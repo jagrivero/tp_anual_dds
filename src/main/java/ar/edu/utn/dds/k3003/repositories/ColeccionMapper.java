@@ -8,7 +8,7 @@ public class ColeccionMapper{
         if(coleccion == null){
             return null;
         }
-        ColeccionDTO retorno = new ColeccionDTO(coleccion.getId(),coleccion.getDescripcion());
+        ColeccionDTO retorno = new ColeccionDTO(coleccion.getNombre(),coleccion.getDescripcion());
         return retorno;
     }
     public Coleccion map(ColeccionDTO colecciondto){
