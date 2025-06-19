@@ -1,67 +1,149 @@
 package ar.edu.utn.dds.k3003.app;
 
-import ar.edu.utn.dds.k3003.facades.FachadaFuente;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.stereotype.Service;
 import ar.edu.utn.dds.k3003.facades.FachadaProcesadorPdI;
 import ar.edu.utn.dds.k3003.facades.dtos.ColeccionDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;
-import ar.edu.utn.dds.k3003.model.Coleccion;
-import ar.edu.utn.dds.k3003.repository.ColeccionRepository;
-import ar.edu.utn.dds.k3003.repository.InMemoryColeccionRepo;
-import java.util.List;
-import java.util.NoSuchElementException;
-import lombok.val;
+import ar.edu.utn.dds.k3003.repositories.*;
 
-public class Fachada implements FachadaFuente {
+@Service
+public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
+    //private FuenteMapper fuenteMapper; Siento que debe ser necesario, pero no le encuentro realmente utilidad.
+    //private FuenteRepository fuenteRepository;
+    private ColeccionRepository coleccionRepository;
+    private HechoRepository hechoRepository;
+    private PdiRepository pdiRepository;
+    private ColeccionMapper coleccionMapper;
+    private HechoMapper hechoMapper;
+    private PdiMapper pdiMapper;
+    private FachadaProcesadorPdI procesadorPdI;
 
-  private ColeccionRepository coleccionRepository;
-
-  public Fachada() {
-    this.coleccionRepository = new InMemoryColeccionRepo();
-  }
-
-  @Override
-  public ColeccionDTO agregar(ColeccionDTO coleccionDTO) {
-    if (this.coleccionRepository.findById(coleccionDTO.nombre()).isPresent()){
-      throw  new IllegalArgumentException(coleccionDTO.nombre() + " ya existe");
+    Fachada(){
+    //    this.fuenteMapper = new FuenteMapper();
+    //    this.fuenteRepository = new FuenteRepository();
+        this.hechoRepository = new HechoRepository();
+        this.coleccionRepository = new ColeccionRepository();
+        this.pdiRepository = new PdiRepository();
+        this.hechoMapper = new HechoMapper();
+        this.coleccionMapper = new ColeccionMapper();
+        this.pdiMapper = new PdiMapper();
     }
-    val coleccion = new Coleccion(coleccionDTO.nombre(), coleccionDTO.descripcion());
-    this.coleccionRepository.save(coleccion);
-    return new ColeccionDTO(coleccion.getNombre(), coleccion.getDescripcion());
-  }
 
-  @Override
-  public ColeccionDTO buscarColeccionXId(String coleccionId) throws NoSuchElementException {
-    val coleccionOptional = this.coleccionRepository.findById(coleccionId);
-    if(coleccionOptional.isEmpty()){
-      throw  new NoSuchElementException(coleccionId + " no existe");
+    public HechoRepository getHechoRepository(){
+        return this.hechoRepository;
     }
-    val coleccion = coleccionOptional.get();
-    return new ColeccionDTO(coleccion.getNombre(),coleccion.getDescripcion());
-  }
+    public HechoMapper getHechoMapper(){
+        return this.hechoMapper;
+    }
+    public ColeccionRepository getColeccionRepository(){
+        return this.coleccionRepository;
+    }
+    public ColeccionMapper getColeccionMapper(){
+        return this.coleccionMapper;
+    }
+    public PdiRepository getPdiRepository(){
+        return this.pdiRepository;
+    }
+    public PdiMapper getPdiMapper(){
+        return this.pdiMapper;
+    }
 
-  @Override
-  public HechoDTO agregar(HechoDTO hechoDTO) {
-    return null;
-  }
+    @Override
+    public ColeccionDTO agregar(ColeccionDTO coleccionDTO) {
+        ColeccionDTO comparable = this.buscarColeccionXId(coleccionDTO.nombre());
+        if(!Objects.isNull(comparable)){
+            if(Objects.equals(comparable.descripcion(),coleccionDTO.descripcion())){
+                throw new IllegalArgumentException("La coleccion ya fue agregada anteriormente");
+            } else {
+                this.coleccionRepository.delete(this.coleccionRepository.findById(comparable.nombre()));
+            }
+        }
+        System.out.println("CORRECTO AGREGADO DE COLECCION");
+        return coleccionMapper.map(this.coleccionRepository.save(coleccionMapper.map(coleccionDTO)));   
+    }
 
-  @Override
-  public HechoDTO buscarHechoXId(String hechoId) throws NoSuchElementException {
-    return null;
-  }
+    @Override
+    public HechoDTO agregar(HechoDTO hechoDTO) {
+        if(Objects.isNull(buscarColeccionXId(hechoDTO.nombreColeccion()))){
+            throw new IllegalArgumentException("No hay una coleccion para asociar al hecho");
+        }
+        HechoDTO comparable = this.buscarHechoXId(hechoDTO.id());
+        if(!Objects.isNull(comparable)){
+            if(Objects.equals(comparable.nombreColeccion(), hechoDTO.nombreColeccion()) && Objects.equals(comparable.ubicacion(), hechoDTO.ubicacion()) && Objects.equals(comparable.titulo(),hechoDTO.titulo()) && Objects.equals(comparable.categoria(), hechoDTO.categoria()) && Objects.equals(comparable.etiquetas(), hechoDTO.etiquetas()) && Objects.equals(comparable.origen(), hechoDTO.origen()) && Objects.equals(comparable.fecha(), hechoDTO.fecha())){
+                System.out.println("ES DECIR, LLEGAMOS CON COLECCION: "+comparable.nombreColeccion() + "ES DECIR, LLEGAMOS CON UBICACION: "+comparable.ubicacion() + "ES DECIR, LLEGAMOS CON TITULO: "+comparable.titulo() +"ES DECIR, LLEGAMOS CON CATEGORIA: "+comparable.categoria() + "ES DECIR, LLEGAMOS CON ETIQUETAS: "+comparable.etiquetas() + "ES DECIR, LLEGAMOS CON ORIGEN: "+comparable.origen() +"ES DECIR, LLEGAMOS CON FECHA: "+comparable.fecha());
+                throw new IllegalArgumentException("El hecho ya fue agregado anteriormente");        
+            } else {
+                this.hechoRepository.delete(this.hechoRepository.findById(comparable.id()));
+            }
+        } 
+        System.out.println("CORRECTO AGREGADO DE HECHO");
+        return hechoMapper.map(this.hechoRepository.save(hechoMapper.map(hechoDTO)));// SE RETORNA EL HECHODTO QUE NOS DIERON
+    }
 
-  @Override
-  public List<HechoDTO> buscarHechosXColeccion(String coleccionId) throws NoSuchElementException {
-    return null;
-  }
+    @Override
+    public PdIDTO agregar(PdIDTO pdiDTO) {
+        try {
+            @SuppressWarnings("unused")
+            PdIDTO pedidoProcesador = procesadorPdI.procesar(pdiDTO);
+        } catch (Exception e) {
+            throw new IllegalStateException("Ha resultado invalido el procesamiento de la PDI");
+        }
+        
+        //A VER, EN EL TEST, DICE QUE EL .PROCESAR GENERO SIEMPRE UN DTO("1", "UNTITULO")
+        //LO CUAL ES MEDIO RARO, PORQUE COMO LO TENGO AHORA, PROCESO EL DTO CON UN ID DE PDI
+        //Y UN ID DE HECHO PERO SIEMPRE ME VA A DEVOLVER ESO, ENTONCES 
+        //NUNCA VOY A PODER AGREGAR HECHOS 
 
-  @Override
-  public void setProcesadorPdI(FachadaProcesadorPdI procesador) {
+        //NO ESTOY MUY SEGURO DE ESTO
+        if(pdiDTO == null){
+            throw new IllegalStateException();
+        }
+        
+        if(Objects.isNull(buscarHechoXId(pdiDTO.hechoId()))){
+            return null;
+        }
+        System.out.println("CORRECTO AGREGADO DE PDI");
+        return pdiMapper.map( this.pdiRepository.save(pdiMapper.map(pdiDTO)));
+    }
 
-  }
+    @Override
+    public ColeccionDTO buscarColeccionXId(String idColeccion) {
+        System.out.println("CORRECTA BUSQUEDA DE COLECCION POR ID");
+        return coleccionMapper.map(coleccionRepository.findById(idColeccion));
+    }
 
-  @Override
-  public PdIDTO agregar(PdIDTO pdIDTO) throws IllegalStateException {
-    return null;
-  }
+    @Override
+    public HechoDTO buscarHechoXId(String idHecho){
+        System.out.println("CORRECTA BUSQUEDA DE HECHO POR ID");
+        return  hechoMapper.map(hechoRepository.findById(idHecho));
+    }
+
+    @Override
+    public List<HechoDTO> buscarHechosXColeccion(String coleccionId){  
+        System.out.println("CORRECTA DEVOLUCION DE LISTA DE HECHOS POR COLECCION");  
+        return hechoRepository.allHechos().stream().filter(hecho->hecho.getNombreColeccion().equals(coleccionId)).map(hechoMapper::map).toList();
+    }
+
+    @Override
+    public void setProcesadorPdI(FachadaProcesadorPdI fachadaProcesadorPdI) {
+        this.procesadorPdI = fachadaProcesadorPdI;
+    }
+
+    @Override
+    public List<ColeccionDTO> colecciones() {
+        //no tengo idea que deberia hacer, asi que envio todas las colecciones
+        List<ColeccionDTO> retorno =coleccionRepository.allColeccciones().stream().map(coleccionMapper::map).toList();
+        // TODO Auto-generated method stub
+        if(Objects.isNull(retorno)){
+            retorno = new ArrayList<>();
+        }
+        System.out.println("CORRECTa devolucion DE COLECCIONES");
+        return retorno;
+    }
+    
 }
