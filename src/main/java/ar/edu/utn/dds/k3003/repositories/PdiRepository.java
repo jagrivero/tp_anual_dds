@@ -20,7 +20,7 @@ public class PdiRepository {
     }
     public Pdi save(Pdi pdiGuardar){
         if (Objects.isNull(pdiGuardar.getId())){
-            pdiGuardar.setIdHecho(Long.toString(seqId));
+            pdiGuardar.setHecho(Long.toString(seqId));
             this.setSeqId(seqId+1);
             pdis.add(pdiGuardar);
         }

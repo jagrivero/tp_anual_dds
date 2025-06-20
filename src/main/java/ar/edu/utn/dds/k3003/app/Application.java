@@ -1,4 +1,4 @@
-package ar.edu.utn.dds.k3003;
+package ar.edu.utn.dds.k3003.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

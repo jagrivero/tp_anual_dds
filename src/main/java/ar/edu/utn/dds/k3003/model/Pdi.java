@@ -13,7 +13,7 @@ public class Pdi {
     @Id
     private String id;
     @Column
-    private String hechoId;
+    private String hecho;
     @Column
     private String lugar;
     @Column
@@ -26,7 +26,7 @@ public class Pdi {
     private LocalDateTime momento;
     public Pdi(String _id,String _hechoId, String _lugar,String _descripcion,String _contenido,List<String> _etiquetas, LocalDateTime _momento){
         this.id = _id;
-        this.hechoId = _hechoId;
+        this.hecho = _hechoId;
         this.contenido = _contenido;
         this.descripcion = _descripcion;
         this.etiquetas = _etiquetas;
@@ -36,8 +36,8 @@ public class Pdi {
     public String getId(){
         return this.id;
     }
-    public String getIdHecho(){
-        return this.hechoId;
+    public String getHecho(){
+        return this.hecho;
     }
     public String getDescripcion(){
         return this.descripcion;
@@ -57,8 +57,8 @@ public class Pdi {
     public void setId(String nuevoId){
         this.id = nuevoId;
     }
-    public void setIdHecho(String nuevoIdHecho){
-        this.hechoId = nuevoIdHecho;
+    public void setHecho(String nuevoIdHecho){
+        this.hecho = nuevoIdHecho;
     }
     public void setLugar(String nuevoLugar){
         this.lugar = nuevoLugar;

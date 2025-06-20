@@ -8,7 +8,7 @@ public class PdiMapper {
         if(pdi.equals(null)){
             return null;
         } // AHORA VA
-        PdIDTO retorno = new PdIDTO(pdi.getId(),pdi.getIdHecho(),pdi.getDescripcion(), pdi.getLugar(),pdi.getMomento(),pdi.getContenido(),pdi.getEtiquetas()) ;
+        PdIDTO retorno = new PdIDTO(pdi.getId(),pdi.getHecho(),pdi.getDescripcion(), pdi.getLugar(),pdi.getMomento(),pdi.getContenido(),pdi.getEtiquetas()) ;
         return retorno;
     }
     public Pdi map(PdIDTO pdiDTO){
