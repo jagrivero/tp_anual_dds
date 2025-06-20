@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(classes = ar.edu.utn.dds.k3003.Application.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class ColeccionControllerTest {
