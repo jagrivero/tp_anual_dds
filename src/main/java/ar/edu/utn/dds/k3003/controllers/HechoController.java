@@ -44,7 +44,7 @@ public class HechoController {
         }
         return ResponseEntity.ok(retorno);
     }
-
+//Ver esto
     @PatchMapping("/{id}") //DEBATIBLE
     public ResponseEntity<HechoDTO> corregirEstado(@PathVariable String id, @RequestBody Hecho body) {
         HechoDTO retorno = fachadaFuente.buscarHechoXId(id);
