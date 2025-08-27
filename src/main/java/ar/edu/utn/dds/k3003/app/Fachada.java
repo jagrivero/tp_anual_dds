@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
+
 import ar.edu.utn.dds.k3003.facades.FachadaProcesadorPdI;
 import ar.edu.utn.dds.k3003.facades.dtos.ColeccionDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
@@ -21,7 +22,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     private ColeccionMapper coleccionMapper;
     private HechoMapper hechoMapper;
     private PdiMapper pdiMapper;
-    private FachadaProcesadorPdI procesadorPdI;
+    private FachadaProcesadorPdI fachadaprocesadorPdI;
 
     Fachada(){
     //    this.fuenteMapper = new FuenteMapper();
@@ -85,7 +86,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     public PdIDTO agregar(PdIDTO pdiDTO) {
         try {
             @SuppressWarnings("unused")
-            PdIDTO pedidoProcesador = procesadorPdI.procesar(pdiDTO);
+            PdIDTO pedidoProcesador = fachadaprocesadorPdI.procesar(pdiDTO);
         } catch (Exception e) {
             throw new IllegalStateException("Ha resultado invalido el procesamiento de la PDI");
         }
@@ -127,7 +128,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
 
     @Override
     public void setProcesadorPdI(FachadaProcesadorPdI fachadaProcesadorPdI) {
-        this.procesadorPdI = fachadaProcesadorPdI;
+        this.fachadaprocesadorPdI = fachadaProcesadorPdI;
     }
 
     @Override
