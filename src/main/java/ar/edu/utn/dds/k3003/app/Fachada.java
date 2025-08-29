@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ar.edu.utn.dds.k3003.facades.FachadaProcesadorPdI;
@@ -22,6 +23,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     private ColeccionMapper coleccionMapper;
     private HechoMapper hechoMapper;
     private PdiMapper pdiMapper;
+    @Autowired
     private FachadaProcesadorPdI fachadaprocesadorPdI;
 
     Fachada(){
