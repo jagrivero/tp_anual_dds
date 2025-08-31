@@ -7,5 +7,6 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17-jdk
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+ENV URL_PROCESADOR=https://two025-tp-entrega-2-gqx2.onrender.com/
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 EXPOSE 8080

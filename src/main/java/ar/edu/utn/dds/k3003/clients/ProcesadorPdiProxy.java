@@ -18,6 +18,12 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
   public ProcesadorPdiProxy(ObjectMapper objectMapper) {
     var env = System.getenv();
     this.endpoint = env.getOrDefault("URL_PROCESADOR", "http://localhost:8080/");
+    if(this.endpoint.equals("http://localhost:8080/")){
+      System.out.println("FAILURE");
+    } else {
+      System.out.println("APPARENT SUCCESS");
+    }
+    System.out.println(this.endpoint);
     var retrofit =
         new Retrofit.Builder()
             .baseUrl(this.endpoint)
