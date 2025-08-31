@@ -5,6 +5,6 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface ProcesadorPdIRetrofit {
-    @POST("procesar")
+    @POST("/api/pdis")
     Call<PdIDTO> procesar(@Body PdIDTO pdi);
 }

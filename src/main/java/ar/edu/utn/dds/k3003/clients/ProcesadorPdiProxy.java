@@ -41,8 +41,10 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
       return execute.body();
     }
     if (execute.code() == HttpStatus.NOT_FOUND.getCode()) {
+      System.out.println("Hubo un error ejecutando");
       throw new NoSuchElementException("No se pudo procesar la pieza de informacion");
     }
+    System.out.println();
     throw new RuntimeException("Error conectandose con el componente procesador");
   }
   @Override
