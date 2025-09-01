@@ -2,7 +2,6 @@ package ar.edu.utn.dds.k3003.controllers;
 
 import ar.edu.utn.dds.k3003.facades.FachadaFuente;
 import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;
-import ar.edu.utn.dds.k3003.model.Pdi;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +21,9 @@ public class PdiController {
         this.fachadaFuente = fachadaFuente;
     }
     @PostMapping
-    public ResponseEntity<PdIDTO> crearPDI(@RequestBody Pdi pdi) {
-        PdIDTO pdIDTO = new PdIDTO(pdi.getId(),pdi.getHecho(),pdi.getDescripcion(),pdi.getLugar(),pdi.getMomento(),pdi.getContenido(),pdi.getEtiquetas());
+    public ResponseEntity<PdIDTO> crearPDI(@RequestBody PdIDTO pdi) {
         try {
-            return ResponseEntity.ok(fachadaFuente.agregar(pdIDTO));
+            return ResponseEntity.ok(fachadaFuente.agregar(pdi));
         } catch (Exception e){
             return new ResponseEntity<>(new PdIDTO("null","null","null","null",LocalDateTime.now(),"null",new ArrayList<>()),HttpStatus.BAD_REQUEST);
         }
