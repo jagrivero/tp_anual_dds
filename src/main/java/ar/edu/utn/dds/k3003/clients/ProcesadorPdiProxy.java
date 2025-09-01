@@ -37,6 +37,8 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
     // TODO ????
     System.out.println("Llegamos opweop");
     try{
+      String veamos_adentro = pdi_dto.toString();
+      System.out.println("Tercer paso" + veamos_adentro);
       Response<PdIDTO> execute = service.procesar(pdi_dto).execute();
       if (execute.isSuccessful()) {
         return execute.body();

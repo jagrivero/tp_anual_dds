@@ -87,9 +87,15 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     @Override
     public PdIDTO agregar(PdIDTO pdiDTO) {
         try {
+            
+            if(pdiDTO != null){
+                String veamos_adentro = pdiDTO.toString();
+                System.out.println("Segundo paso" + veamos_adentro);
+            }
             @SuppressWarnings("unused")
             PdIDTO pedidoProcesador = fachadaprocesadorPdI.procesar(pdiDTO);
         } catch (Exception e) {
+            System.out.println("No funciono la conexion");
             throw new IllegalStateException("Ha resultado invalido el procesamiento de la PDI");
         }
         

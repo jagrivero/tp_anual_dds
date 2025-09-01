@@ -22,6 +22,8 @@ public class PdiController {
     }
     @PostMapping
     public ResponseEntity<PdIDTO> crearPDI(@RequestBody PdIDTO pdi) {
+        String veamos_adentro = pdi.toString();
+          System.out.println("Primer paso" + veamos_adentro);
         try {
             return ResponseEntity.ok(fachadaFuente.agregar(pdi));
         } catch (Exception e){
