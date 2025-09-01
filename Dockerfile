@@ -7,6 +7,6 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17-jdk
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-ENV URL_PROCESADOR=https////localhost:8080/
+ENV URL_PROCESADOR=http://localhost:8080/
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 EXPOSE 8080
