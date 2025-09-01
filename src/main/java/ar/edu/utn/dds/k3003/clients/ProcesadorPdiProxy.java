@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.HttpStatus;
 import java.util.*;
 import lombok.SneakyThrows;
+import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -36,13 +38,23 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
   public PdIDTO procesar(PdIDTO pdi_dto) throws NoSuchElementException {
     // TODO ????
     System.out.println("Llegamos opweop");
-    Response<List<PdIDTO>> execute1 = service.pdisHechos("E").execute();
-    if (execute1.isSuccessful()) {
-        String vamos_de_nuevo = execute1.body().toString();
+    Call<List<PdIDTO>> execute1 = service.pdisHechos("E");
+    execute1.enqueue(new Callback<List<PdIDTO>>(){
+      @Override
+      public void onResponse(Call<List<PdIDTO>> execute1, Response<List<PdIDTO>> respuesta){
+        if(!respuesta.isSuccessful()){
+          System.out.println("Errores de codigo: "+ respuesta.code());
+          return;
+        } 
+        List<PdIDTO> vamos_de_nuevo = respuesta.body();
         System.out.println(vamos_de_nuevo);
-    } else {
-      System.out.println("pegate un tiro");
-    }
+      }
+      @Override
+      public void onFailure(Call<List<PdIDTO>> execute1, Throwable t){
+        System.out.println("Errores de failure: "+ t.getMessage());
+        return;
+      }
+    });
     try{
       String veamos_adentro = pdi_dto.toString();
       System.out.println("Tercer paso" + veamos_adentro);
