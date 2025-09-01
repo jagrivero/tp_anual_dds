@@ -41,6 +41,7 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
       if (execute.isSuccessful()) {
         return execute.body();
       }
+      System.out.println("El codigo de salida fue: " + execute.code());
       if (execute.code() == HttpStatus.NOT_FOUND.getCode()) {
         System.out.println("Hubo un error ejecutando");
         throw new NoSuchElementException("No se pudo procesar la pieza de informacion");
