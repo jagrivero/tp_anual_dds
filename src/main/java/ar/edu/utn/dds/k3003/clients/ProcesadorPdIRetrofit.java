@@ -10,7 +10,7 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 import retrofit2.http.GET;
 
-@Service
+
 public interface ProcesadorPdIRetrofit {
     @POST("/api/pdis")
     Call<PdIDTO> procesar(@Body PdIDTO pdi);
