@@ -54,7 +54,7 @@ public class HechoController {
         List<String> ayuda = new ArrayList<>();
         ayuda.addAll(retorno.etiquetas());
         ayuda.addAll(body.getEtiquetas());
-        //NO ESTOY SEGURO DE ESTO TODO
+        //NO ESTOY SEGURO DE ESTO
         //NO VOY A CAMBIAR LO QUE HAY DESDE BODY, QUE SERIA ALL. DE TODAS MANERASNO ESTOY SEGURO
         retorno = fachadaFuente.agregar(new HechoDTO(id,retorno.nombreColeccion(), retorno.titulo(), ayuda, retorno.categoria(), retorno.ubicacion(), retorno.fecha(), retorno.origen()));
         return ResponseEntity.ok(retorno);

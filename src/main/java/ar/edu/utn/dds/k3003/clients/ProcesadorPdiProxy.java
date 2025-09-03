@@ -4,7 +4,11 @@ import ar.edu.utn.dds.k3003.facades.FachadaSolicitudes;
 import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import io.javalin.http.HttpStatus;
+
 import java.util.*;
 import lombok.SneakyThrows;
 import retrofit2.Response;
@@ -24,17 +28,20 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
       System.out.println("APPARENT SUCCESS");
     }
     System.out.println(this.endpoint);
+    objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     var retrofit =
         new Retrofit.Builder()
             .baseUrl(this.endpoint)
             .addConverterFactory(JacksonConverterFactory.create(objectMapper))
             .build();
     this.service = retrofit.create(ProcesadorPdIRetrofit.class);
+    
   }
   @SneakyThrows
   @Override
   public PdIDTO procesar(PdIDTO pdi_dto) throws NoSuchElementException {
-    // TODO ????
     System.out.println("Llegamos opweop");
     /*Response<List<PdIDTO>> execute1 = service.pdisHechos("E").execute();
     if (execute1.isSuccessful()) {
@@ -44,8 +51,6 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
       System.out.println("pegate un tiro");
     } */
     try{
-      String veamos_adentro = pdi_dto.toString();
-      System.out.println("Tercer paso" + veamos_adentro);
       Response<PdIDTO> execute = service.procesar(pdi_dto).execute();
       if (execute.isSuccessful()) {
         return execute.body();
@@ -57,9 +62,7 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
       }
     } catch (Exception e) {
       System.out.println("Los caminos de la vida no son como yo esperaba");
-    }
-    //get(pdi_dto).execute(); //TODO ????
-    
+    }    
     System.out.println("    lecnn oid qdho  ");
     throw new RuntimeException("Error conectandose con el componente procesador");
   }

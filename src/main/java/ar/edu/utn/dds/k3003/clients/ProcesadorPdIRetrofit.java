@@ -1,7 +1,5 @@
 package ar.edu.utn.dds.k3003.clients;
-import java.util.List;
 
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;

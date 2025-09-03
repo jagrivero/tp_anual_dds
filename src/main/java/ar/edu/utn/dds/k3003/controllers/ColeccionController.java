@@ -47,7 +47,7 @@ public class ColeccionController {
     public ResponseEntity<List<HechoDTO>> obtenerHechosColeccion(@PathVariable String nombre) {
         ColeccionDTO coleccionDTO = fachadaFuente.buscarColeccionXId(nombre);
         if(Objects.isNull(coleccionDTO)){
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST); //TODO BIEN DEBATIBLE
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST); 
         }
         List<HechoDTO> retorno = fachadaFuente.buscarHechosXColeccion(nombre);
         return ResponseEntity.ok(retorno);

@@ -87,11 +87,6 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     @Override
     public PdIDTO agregar(PdIDTO pdiDTO) {
         try {
-            
-            if(pdiDTO != null){
-                String veamos_adentro = pdiDTO.toString();
-                System.out.println("Segundo paso" + veamos_adentro);
-            }
             @SuppressWarnings("unused")
             PdIDTO pedidoProcesador = fachadaprocesadorPdI.procesar(pdiDTO);
         } catch (Exception e) {
@@ -143,7 +138,6 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     public List<ColeccionDTO> colecciones() {
         //no tengo idea que deberia hacer, asi que envio todas las colecciones
         List<ColeccionDTO> retorno =coleccionRepository.allColeccciones().stream().map(coleccionMapper::map).toList();
-        // TODO Auto-generated method stub
         if(Objects.isNull(retorno)){
             retorno = new ArrayList<>();
         }
