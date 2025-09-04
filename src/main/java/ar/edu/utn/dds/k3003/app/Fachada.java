@@ -87,19 +87,12 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     @Override
     public PdIDTO agregar(PdIDTO pdiDTO) {
         try {
-            @SuppressWarnings("unused")
             PdIDTO pedidoProcesador = fachadaprocesadorPdI.procesar(pdiDTO);
+            pdiDTO = pedidoProcesador;
         } catch (Exception e) {
             System.out.println("No funciono la conexion");
             throw new IllegalStateException("Ha resultado invalido el procesamiento de la PDI");
         }
-        
-        //A VER, EN EL TEST, DICE QUE EL .PROCESAR GENERO SIEMPRE UN DTO("1", "UNTITULO")
-        //LO CUAL ES MEDIO RARO, PORQUE COMO LO TENGO AHORA, PROCESO EL DTO CON UN ID DE PDI
-        //Y UN ID DE HECHO PERO SIEMPRE ME VA A DEVOLVER ESO, ENTONCES 
-        //NUNCA VOY A PODER AGREGAR HECHOS 
-
-        //NO ESTOY MUY SEGURO DE ESTO
         if(pdiDTO == null){
             throw new IllegalStateException();
         }
