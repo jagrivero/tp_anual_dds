@@ -43,14 +43,8 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
   @Override
   public PdIDTO procesar(PdIDTO pdi_dto) throws NoSuchElementException {
     System.out.println("Llegamos opweop");
-    /*Response<List<PdIDTO>> execute1 = service.pdisHechos("E").execute();
-    if (execute1.isSuccessful()) {
-        String vamos_de_nuevo = execute1.body().toString();
-        System.out.println(vamos_de_nuevo);
-    } else {
-      System.out.println("pegate un tiro");
-    } */
     try{
+      System.out.println("ADENTRO DEL PDI_DTO" + pdi_dto.toString());
       Response<PdIDTO> execute = service.procesar(pdi_dto).execute();
       if (execute.isSuccessful()) {
         return execute.body();
