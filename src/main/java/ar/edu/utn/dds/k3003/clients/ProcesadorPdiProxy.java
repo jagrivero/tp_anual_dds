@@ -4,7 +4,7 @@ import ar.edu.utn.dds.k3003.facades.FachadaSolicitudes;
 import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+//import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.javalin.http.HttpStatus;
@@ -30,7 +30,7 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
     System.out.println(this.endpoint);
     objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
-    objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+//    objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     var retrofit =
         new Retrofit.Builder()
             .baseUrl(this.endpoint)
