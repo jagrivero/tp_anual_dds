@@ -42,7 +42,6 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
   @SneakyThrows
   @Override
   public PdIDTO procesar(PdIDTO pdi_dto) throws NoSuchElementException {
-    System.out.println("Llegamos opweop");
     try{
       System.out.println("ADENTRO DEL PDI_DTO" + pdi_dto.toString());
       Response<PdIDTO> execute = service.procesar(pdi_dto).execute();
@@ -51,13 +50,11 @@ public class ProcesadorPdiProxy implements FachadaProcesadorPdI{
       }
       System.out.println("El codigo de salida fue: " + execute.code());
       if (execute.code() == HttpStatus.NOT_FOUND.getCode()) {
-        System.out.println("Hubo un error ejecutando");
         throw new NoSuchElementException("No se pudo procesar la pieza de informacion");
       }
     } catch (Exception e) {
-      System.out.println("Los caminos de la vida no son como yo esperaba");
+      System.out.println(e.getMessage());
     }    
-    System.out.println("    lecnn oid qdho  ");
     throw new RuntimeException("Error conectandose con el componente procesador");
   }
   @Override

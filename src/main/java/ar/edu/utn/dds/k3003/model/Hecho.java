@@ -3,9 +3,12 @@ package ar.edu.utn.dds.k3003.model;
 import java.time.LocalDateTime;
 import java.util.List;
 import ar.edu.utn.dds.k3003.facades.dtos.CategoriaHechoEnum;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
 import lombok.Data;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,24 +16,39 @@ import jakarta.persistence.Enumerated;
 
 @Data
 @Entity
+@Table(name = "hecho")
 public class Hecho {
     @Id
     private String id;
-    @Column
+
+    @Column(nullable = false)
     private String nombreColeccion;
-    @Column
+
+    @Column(nullable = false)
     private String titulo;
+
+    // Relación de 1 Hecho → muchas etiquetas (strings)
     @ElementCollection
+    @CollectionTable(
+        name = "hecho_etiquetas",
+        joinColumns = @JoinColumn(name = "hechoid")
+    )
+    @Column(name = "etiqueta")
     private List<String> etiquetas;
+
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(nullable = false)
     private CategoriaHechoEnum categoria;
+
     @Column
     private String ubicacion;
+
     @Column
     private LocalDateTime fecha;
+
     @Column
     private String origen;
+
     public Hecho(String id_, String nombreColeccion2, String titulo2, List<String> etiquetas2,
             CategoriaHechoEnum categoria2, String ubicacion2, LocalDateTime fecha2, String origen2) {
         id= id_;
