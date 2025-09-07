@@ -3,16 +3,9 @@ package ar.edu.utn.dds.k3003.model;
 import java.time.LocalDateTime;
 import java.util.List;
 import ar.edu.utn.dds.k3003.facades.dtos.CategoriaHechoEnum;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
@@ -49,6 +42,12 @@ public class Hecho {
     @Column
     private String origen;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoHechoEnum estado = EstadoHechoEnum.ACTIVO;
+
+    public Hecho() { }
+
     public Hecho(String id_, String nombreColeccion2, String titulo2, List<String> etiquetas2,
             CategoriaHechoEnum categoria2, String ubicacion2, LocalDateTime fecha2, String origen2) {
         id= id_;
@@ -59,6 +58,11 @@ public class Hecho {
         ubicacion= ubicacion2;
         fecha = fecha2;
         origen = origen2;
+    }
+
+    @PrePersist
+    public void ensureEstadoDefault() {
+        if (estado == null) estado = EstadoHechoEnum.ACTIVO;
     }
     public String getId(){
         return this.id;
