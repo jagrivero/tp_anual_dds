@@ -49,6 +49,7 @@ public class HechoController {
     public ResponseEntity<HechoDTO> corregirEstado(@PathVariable String id,
                                                    @RequestBody HechoEstadoRequestDTO body) {
         try {
+            @SuppressWarnings("unused")
             HechoDTO hecho = fachadaFuente.buscarHechoXId(id);
             EstadoHechoEnum nuevoEstado = EstadoHechoEnum.valueOf(body.estado().toUpperCase());
 

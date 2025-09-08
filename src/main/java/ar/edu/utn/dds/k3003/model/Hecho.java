@@ -5,8 +5,6 @@ import java.util.List;
 import ar.edu.utn.dds.k3003.facades.dtos.CategoriaHechoEnum;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Data
 @Entity
 @Table(name = "hecho")
