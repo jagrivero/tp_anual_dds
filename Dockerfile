@@ -24,6 +24,6 @@ COPY --from=build /datadog/dd-java-agent.jar /datadog/dd-java-agent.jar
 ENV URL_PROCESADOR=https://tp-dds-2025-procesadorpdi.onrender.com
 
 EXPOSE 8080
-
+#sw
 # ENTRYPOINT usando Java Agent, todo en una línea para que no haya parse errors
 ENTRYPOINT ["java","-javaagent:/datadog/dd-java-agent.jar","-Ddd.service=mi-servicio","-Ddd.env=production","-Ddd.version=1.0.0","-jar","/app/app.jar"]
