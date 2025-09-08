@@ -7,6 +7,7 @@ package ar.edu.utn.dds.k3003.controllers;
 import ar.edu.utn.dds.k3003.facades.FachadaFuente;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoEstadoRequestDTO;
+import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;
 import ar.edu.utn.dds.k3003.model.EstadoHechoEnum;
 import ar.edu.utn.dds.k3003.model.Hecho;
 
@@ -26,7 +27,7 @@ public class HechoController {
         this.fachadaFuente = fachadaFuente;
     }
 
-    @PostMapping
+/*    @PostMapping
     public ResponseEntity<HechoDTO> crearHecho(@RequestBody Hecho hecho) {
         HechoDTO hechoDTO = new HechoDTO(hecho.getId(),hecho.getNombreColeccion(),hecho.getTitulo(),hecho.getEtiquetas(),hecho.getCategoria(),hecho.getUbicacion(),hecho.getFecha(),hecho.getOrigen());
         try {
@@ -34,7 +35,7 @@ public class HechoController {
         } catch (Exception e){
             return new ResponseEntity<>(new HechoDTO("null"," null","null"),HttpStatus.BAD_REQUEST);
         }
-    }
+    }*/
 
     @GetMapping("/{id}")
     public ResponseEntity<HechoDTO> obtenerHecho(@PathVariable String id) {
@@ -49,7 +50,6 @@ public class HechoController {
     public ResponseEntity<HechoDTO> corregirEstado(@PathVariable String id,
                                                    @RequestBody HechoEstadoRequestDTO body) {
         try {
-            @SuppressWarnings("unused")
             HechoDTO hecho = fachadaFuente.buscarHechoXId(id);
             EstadoHechoEnum nuevoEstado = EstadoHechoEnum.valueOf(body.estado().toUpperCase());
 
@@ -79,5 +79,30 @@ public class HechoController {
         }
         return ResponseEntity.ok(activos); // 200 con la lista
     }
+
+    @PostMapping("/{id}/pdis")
+    public ResponseEntity<PdIDTO> agregarPdiAHecho(@PathVariable String id, @RequestBody PdIDTO body) {
+        try {
+            var etiquetasSeguras = (body.etiquetas() == null) ? List.<String>of() : body.etiquetas();
+            PdIDTO pdi = new PdIDTO(
+                    null,                       // id lo genera Procesador
+                    id,                         // hechoId desde la URL (no dependemos del body)
+                    body.descripcion(),
+                    body.lugar(),
+                    body.momento(),             // asegurate que en Postman sea "2025-10-09T14:00:00"
+                    body.contenido(),
+                    etiquetasSeguras
+            );
+            PdIDTO result = fachadaFuente.agregar(pdi);
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(422).build();
+        }
+    }
+
 }
 

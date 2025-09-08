@@ -1,10 +1,13 @@
 package ar.edu.utn.dds.k3003.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import ar.edu.utn.dds.k3003.facades.dtos.CategoriaHechoEnum;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @Entity
 @Table(name = "hecho")
@@ -43,6 +46,11 @@ public class Hecho {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoHechoEnum estado = EstadoHechoEnum.ACTIVO;
+
+    @ElementCollection
+    @CollectionTable(name = "hecho_pdi", joinColumns = @JoinColumn(name = "hechoid"))
+    @Column(name = "pdi_id")
+    private List<String> pdiIds = new ArrayList<>();
 
     public Hecho() { }
 
@@ -110,4 +118,6 @@ public class Hecho {
     public void setFecha(LocalDateTime fecha_nueva){
         this.fecha = fecha_nueva;
     }
+    public List<String> getPdiIds() { return pdiIds; }
+    public void setPdiIds(List<String> pdiIds) { this.pdiIds = pdiIds; }
 }
