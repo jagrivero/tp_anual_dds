@@ -61,7 +61,7 @@ public class ColeccionController {
         }
     }
 
-    @PostMapping("{nombre}/hechos")
+    @PostMapping("/{nombre}/hechos")
     public ResponseEntity<HechoDTO> crearHecho(
             @PathVariable("nombre") String nombreColeccion,
             @RequestBody Hecho hecho) {
