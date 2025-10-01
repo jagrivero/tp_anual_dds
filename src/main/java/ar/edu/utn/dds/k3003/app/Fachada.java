@@ -63,6 +63,10 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
         this.coleccionMapper = coleccionMapper;
         this.hechoMapper = hechoMapper;
         this.pdiMapper = pdiMapper;
+    }
+    @Autowired
+    public void setWorker(CopiaMeWorker worker) {
+        this.worker = worker;
         this.worker.setFachada(this);
     }
     public void hacerAlgo(String string){
