@@ -244,7 +244,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
         if (proc == null) throw new IllegalStateException("ProcesadorPdI devolvió nulo");
 
         // 2) Si NO se procesó, no persistimos nada y devolvemos tal cual
-        if (!"PROCESSED".equalsIgnoreCase(proc.estado())) {
+        if (!"PROCESSING".equalsIgnoreCase(proc.estado())) {
             return proc;
         }
 
