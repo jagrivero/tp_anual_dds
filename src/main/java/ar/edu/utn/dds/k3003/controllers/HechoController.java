@@ -82,7 +82,7 @@ public class HechoController {
     }
 
     @PostMapping("/{id}/pdis")
-    public ResponseEntity<ProcesamientoResponseDTO> agregarPdiAHecho(
+    public ResponseEntity<ProcesamientoResponseDTO> agregarPdiAHecho(   
             @PathVariable String id,
             @RequestBody PdIDTO body) {
         try {
