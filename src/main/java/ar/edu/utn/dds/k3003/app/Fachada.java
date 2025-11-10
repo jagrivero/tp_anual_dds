@@ -321,7 +321,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
             }
         }
         int primer_indice = (pagina -1)*3;
-        int fin = Math.min(primer_indice,hechos.size()-1);
+        int fin = Math.min(primer_indice+3,hechos.size());
         return hechos.subList(primer_indice, Math.max(fin,0));
     }
 }
