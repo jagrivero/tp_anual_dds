@@ -125,6 +125,18 @@ public class HechoController {
         var res = fachadaFuente.buscarHechosSinSolicitudes();
         return ResponseEntity.ok(res);
     }
+    @GetMapping("/busqueda")
+    public ResponseEntity<?> buscar(@RequestParam Map<String, String> filtros) {
+        // 'filtros' contendrá todos los parámetros de query, por ejemplo:
+        // ?nombre=Juan&edad=16  =>  {nombre=Juan, edad=16}
+        // ?altura=198           =>  {altura=198}
+        // ?nombre=Ana&altura=165 => {nombre=Ana, altura=165}
 
+        System.out.println(filtros);
+
+        // Podés usar esos valores como quieras, por ejemplo:
+        // Buscar en Mongo con criterios dinámicos, o filtrar manualmente
+        return ResponseEntity.ok(filtros);
+    }
 }
 
