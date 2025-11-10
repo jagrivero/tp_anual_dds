@@ -2,6 +2,7 @@ package ar.edu.utn.dds.k3003.app;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -275,7 +276,52 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                 .map(hechoMapper::map)
                 .toList();
     }
-
-
-
+    @Override
+    public List<HechoDTO> buscarHechosFiltrados(Map<String,String> filtros){
+        List<HechoDTO> hechos= hechoRepository.allHechos().stream().map(hechoMapper::map).toList();
+        int pagina = 1;
+        for(Map.Entry<String, String> filtro: filtros.entrySet()){
+            String key = filtro.getKey().toLowerCase();
+            String value = filtro.getValue();
+            switch(key){
+                case "titulo": 
+                    hechos = hechos.stream().filter(hecho-> hecho.titulo().toLowerCase().contains(value.toLowerCase())).toList();
+                    break;
+                case "etiquetas":
+                    hechos = hechos.stream().filter(
+                        hecho -> hecho.etiquetas().stream().
+                        anyMatch(e->e.toLowerCase().contains(value.toLowerCase()))).
+                        toList();
+                    break;
+                case "origen":
+                    hechos = hechos.stream().filter(hecho-> hecho.origen().toLowerCase().contains(value.toLowerCase())).toList();
+                    break;
+                case "ubicacion": 
+                    hechos = hechos.stream().filter(hecho-> hecho.ubicacion().toLowerCase().contains(value.toLowerCase())).toList();
+                    break;
+                case "estado":
+                    if (value.toLowerCase().contains("true")){
+                        hechos = hechos.stream().filter(hecho->  EstadoHechoEnum.ACTIVO.equals(hecho.estado())).toList();
+                    } else {
+                        hechos = hechos.stream().filter(hecho->  EstadoHechoEnum.BORRADO.equals(hecho.estado())).toList();
+                    }
+                    ;
+                    break;
+                case "categoria":
+                    hechos = hechos.stream().filter(hecho-> hecho.categoria().toString().toLowerCase().contains(value.toLowerCase())).toList();
+                    break;
+                case "page":
+                    pagina = Integer.parseInt(value.toString());
+                case "pdi_nombre":
+                    System.out.println("LLAMAR A PROCESADOR_PDI, PEDIR LOS PDIS PARA CADA HECHO Y FILTRARLOS POR LA INFORMACION");
+                    break;
+                default:
+                    System.out.println("Filtro no reconocido"); 
+                    break;
+            }
+        }
+        int primer_indice = (pagina -1)*3;
+        int fin = Math.min(primer_indice,hechos.size()-1);
+        return hechos.subList(primer_indice, fin);
+    }
 }

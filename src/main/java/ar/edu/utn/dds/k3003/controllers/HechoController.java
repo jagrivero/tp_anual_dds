@@ -119,28 +119,25 @@ public class HechoController {
         }
     }
 
-
     @GetMapping("/sin_solicitudes")
     public ResponseEntity<List<HechoDTO>> buscarHechosSinSolicitudes() {
         var res = fachadaFuente.buscarHechosSinSolicitudes();
         return ResponseEntity.ok(res);
     }
+
     @GetMapping("/busqueda")
     public ResponseEntity<?> buscar(@RequestParam Map<String, String> filtros) {
-        // 'filtros' contendrá todos los parámetros de query, por ejemplo:
-        // ?nombre=Juan&edad=16  =>  {nombre=Juan, edad=16}
-        // ?altura=198           =>  {altura=198}
-        // ?nombre=Ana&altura=165 => {nombre=Ana, altura=165}
-
         System.out.println(filtros);
         for (Map.Entry<String,String> entry : filtros.entrySet()){
             String clave  = entry.getKey();
             String valor = entry.getValue();
             System.out.println( "Nuestro clave-valor es: " + clave + valor);
         }
-        // Podés usar esos valores como quieras, por ejemplo:
-        // Buscar en Mongo con criterios dinámicos, o filtrar manualmente
-        return ResponseEntity.ok(filtros);
+        List<HechoDTO> activos = fachadaFuente.buscarHechosFiltrados(filtros);;
+        if (activos.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 si no hay
+        }
+        return ResponseEntity.ok(activos); // 200 con la lista
     }
 }
 
