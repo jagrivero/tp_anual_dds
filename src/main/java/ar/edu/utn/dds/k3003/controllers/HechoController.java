@@ -133,7 +133,11 @@ public class HechoController {
         // ?nombre=Ana&altura=165 => {nombre=Ana, altura=165}
 
         System.out.println(filtros);
-
+        for (Map.Entry<String,String> entry : filtros.entrySet()){
+            String clave  = entry.getKey();
+            String valor = entry.getValue();
+            System.out.println( "Nuestro clave-valor es: " + clave + valor);
+        }
         // Podés usar esos valores como quieras, por ejemplo:
         // Buscar en Mongo con criterios dinámicos, o filtrar manualmente
         return ResponseEntity.ok(filtros);
