@@ -42,6 +42,7 @@ public class SolicitudesClient {
 
 
     /** Devuelve una Solicitud si existe para ese hecho; vacío si no. */
+    @SuppressWarnings("deprecation")
     public Optional<SolicitudDTO> findByHecho(String hechoId) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(baseUrl + "/solicitudes")
@@ -60,6 +61,7 @@ public class SolicitudesClient {
                 return Optional.empty();
             }
 
+            @SuppressWarnings("null")
             String body = resp.getBody().trim();
 
             // --- JSON clásico ---

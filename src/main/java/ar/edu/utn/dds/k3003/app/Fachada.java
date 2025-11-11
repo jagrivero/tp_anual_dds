@@ -276,12 +276,23 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                 .map(hechoMapper::map)
                 .toList();
     }
+
     @Override
     public List<HechoDTO> buscarHechosFiltrados(Map<String,String> filtros){
         List<HechoDTO> hechos= hechoRepository.allHechos().stream().map(hechoMapper::map).toList();
         int pagina = 1;
-        for(Map.Entry<String, String> filtro: filtros.entrySet()){
-            String key = filtro.getKey().toLowerCase();
+        String key;
+        Boolean pdi_nombre = false;
+        Boolean pdi_etiquetas = false;
+        Boolean pdi_descripcion = false;
+        Boolean pdi_lugar = false;
+        final String value_pdi_nombre;
+        final String value_pdi_etiquetas;
+        final String value_pdi_descripcion;
+        final String value_pdi_lugar;
+        
+        for(Map.Entry<String, String> filtro : filtros.entrySet()){
+            key = filtro.getKey().toLowerCase();
             String value = filtro.getValue();
             switch(key){
                 case "titulo": 
@@ -299,7 +310,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                 case "ubicacion": 
                     hechos = hechos.stream().filter(hecho-> hecho.ubicacion().toLowerCase().contains(value.toLowerCase())).toList();
                     break;
-                case "estado":
+                case "activo":
                     if (value.toLowerCase().contains("true")){
                         hechos = hechos.stream().filter(hecho->  EstadoHechoEnum.ACTIVO.equals(hecho.estado())).toList();
                     } else {
@@ -312,13 +323,72 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                     break;
                 case "page":
                     pagina = Integer.parseInt(value.toString());
+                    break;
                 case "pdi_nombre":
-                    System.out.println("LLAMAR A PROCESADOR_PDI, PEDIR LOS PDIS PARA CADA HECHO Y FILTRARLOS POR LA INFORMACION");
+                    pdi_nombre = true;
+                    value_pdi_nombre = value.toLowerCase();
+                    //TODO PREGUNTAR URGENTEMENTE POR TITULO O ID
+                    break;
+                case "pdi_descripcion":
+                    pdi_descripcion = true;
+                    value_pdi_descripcion = value.toLowerCase();
+                    hechos = hechos.stream().filter(hecho->
+                        this.fachadaprocesadorPdI.buscarPorHecho(
+                            hecho.titulo()).stream().anyMatch(
+                                p->p.descripcion().toLowerCase().contains(value.toLowerCase())
+                                )
+                    ).toList();
+                    //TODO NO VOY A FILTRAR NI EN PEDO POR URLIMAGEN
+                    //TODO PREGUNTAR TAMBIEN SI CONTENIDO O DESCRIPCION ES LO QUE FILTRA
+                    break;
+                case "pdi_lugar":
+                    pdi_lugar=true;
+                    value_pdi_lugar = value.toLowerCase();
+                    hechos = hechos.stream().filter(hecho->
+                        this.fachadaprocesadorPdI.buscarPorHecho(
+                            hecho.titulo()).stream().anyMatch(
+                                p->p.lugar().toLowerCase().contains(value.toLowerCase())
+                                )
+                    ).toList(); 
+                    break;
+                case "pdi_etiquetas":
+                    pdi_etiquetas = true;
+                    value_pdi_etiquetas= value.toLowerCase();
+                    hechos = hechos.stream().filter(hecho->
+                        this.fachadaprocesadorPdI.buscarPorHecho(
+                            hecho.titulo()).stream().anyMatch(
+                                p->p.etiquetas().stream().anyMatch(
+                                e->e.toLowerCase().contains(value.toLowerCase())))
+                    )
+                    .toList(); 
+                    //TODO PREGUNTAR URGENTEMENTE POR TITULO O ID
                     break;
                 default:
                     System.out.println("Filtro no reconocido"); 
                     break;
             }
+        }
+        if(pdi_etiquetas|| pdi_nombre || pdi_lugar || pdi_descripcion){
+           List<PdIDTO> pdis_hecho;
+            if(pdi_etiquetas){
+
+            }
+            if(pdi_nombre){
+                hechos = hechos.stream().filter(hecho->
+                        this.fachadaprocesadorPdI.buscarPorHecho(
+                            hecho.titulo()).stream().anyMatch(
+                                p->p.contenido().toLowerCase().contains(value_pdi_nombre.toLowerCase())
+                                )
+                    ).toList(); 
+            }
+            if(pdi_lugar){
+
+            }
+            if(pdi_descripcion){
+                
+            }
+            
+
         }
         int primer_indice = (pagina -1)*3;
         int fin = Math.min(primer_indice+3,hechos.size());
