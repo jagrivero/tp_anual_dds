@@ -133,7 +133,7 @@ public class HechoController {
             String valor = entry.getValue();
             System.out.println( "Nuestro clave-valor es: " + clave + valor);
         }
-        List<HechoDTO> activos = fachadaFuente.buscarHechosFiltrados(filtros);;
+        List<HechoDTO> activos = fachadaFuente.buscarHechosFiltrados(filtros);
         if (activos.isEmpty()) {
             return ResponseEntity.noContent().build(); // 204 si no hay
         }

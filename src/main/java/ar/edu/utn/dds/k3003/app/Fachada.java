@@ -11,6 +11,7 @@ import ar.edu.utn.dds.k3003.clients.SolicitudesClient;
 import ar.edu.utn.dds.k3003.clients.dto.ProcesamientoResponseDTO;
 import ar.edu.utn.dds.k3003.model.EstadoHechoEnum;
 import ar.edu.utn.dds.k3003.model.Hecho;
+import ar.edu.utn.dds.k3003.model.HechoMongo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,15 @@ import org.springframework.stereotype.Service;
 import ar.edu.utn.dds.k3003.facades.FachadaProcesadorPdI;
 import ar.edu.utn.dds.k3003.facades.dtos.ColeccionDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
+import ar.edu.utn.dds.k3003.facades.dtos.HechoFiltroDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;
 import ar.edu.utn.dds.k3003.repositories.real.ColRepository;
 import ar.edu.utn.dds.k3003.repositories.real.HecRepository;
 import ar.edu.utn.dds.k3003.repositories.PdiRepository;
 import ar.edu.utn.dds.k3003.repositories.ColeccionMapper;
 import ar.edu.utn.dds.k3003.repositories.HechoMapper;
+import ar.edu.utn.dds.k3003.repositories.HechoMongoSearchRepositoryImpl;
+import ar.edu.utn.dds.k3003.repositories.HechoMongoMapper;
 import ar.edu.utn.dds.k3003.repositories.PdiMapper;
 
 @Service
@@ -45,6 +49,10 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     @Autowired
     private WorkerHandler worker; 
     // Constructor vacío (opcional; no inicializa nada)
+    @Autowired
+    private HechoMongoSearchRepositoryImpl repositoryMongo;
+    @Autowired
+    private HechoMongoMapper mongoMapper;
     Fachada() {
     }
 
@@ -76,15 +84,12 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     public HecRepository getHechoRepository() {
         return this.hechoRepository;
     }
-
     public HechoMapper getHechoMapper() {
         return this.hechoMapper;
     }
-
     public ColRepository getColeccionRepository() {
         return this.coleccionRepository;
     }
-
     public ColeccionMapper getColeccionMapper() {
         return this.coleccionMapper;
     }
@@ -133,7 +138,8 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                 this.hechoRepository.delete(this.hechoRepository.findById(comparable.id()));
             }
         }
-
+        this.repositoryMongo.guardarDesdeDTO(this.mongoMapper.mapDTO(hechoDTO));
+        //TODO AGREGAR AL REPO MONGO
         return hechoMapper.map(this.hechoRepository.save(hechoMapper.map(hechoDTO)));
     }
 
@@ -175,7 +181,6 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
         return retorno;
     }
 
-
     @Override
     @Transactional
     public int borrarTodosLosHechos() {
@@ -211,6 +216,11 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
 
         h.setEstado(nuevoEstado);
         Hecho guardado = this.hechoRepository.save(h); // upsert en tu repo
+        HechoMongo hechoEncontrado = this.repositoryMongo.buscarPorId(hechoId);
+        if (hechoEncontrado != null) {
+            hechoEncontrado.setEstado(nuevoEstado);
+            this.repositoryMongo.guardarDesdeDTO(hechoEncontrado);  // upsert en Mongo
+        }
 
         return this.hechoMapper.map(guardado);
     }
@@ -279,88 +289,52 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
 
     @Override
     public List<HechoDTO> buscarHechosFiltrados(Map<String,String> filtros){
-        List<HechoDTO> hechos= hechoRepository.allHechos().stream().map(hechoMapper::map).toList();
-        int pagina = 1;
         String key;
         Boolean pdi_nombre = false;
         Boolean pdi_etiquetas = false;
         Boolean pdi_descripcion = false;
         Boolean pdi_lugar = false;
-        final String value_pdi_nombre;
-        final String value_pdi_etiquetas;
-        final String value_pdi_descripcion;
-        final String value_pdi_lugar;
-        
+        HechoFiltroDTO filtros_mongo = new HechoFiltroDTO(null,null,null,null,null,null,null,null,null,null);
         for(Map.Entry<String, String> filtro : filtros.entrySet()){
             key = filtro.getKey().toLowerCase();
             String value = filtro.getValue();
             switch(key){
-                case "titulo": 
-                    hechos = hechos.stream().filter(hecho-> hecho.titulo().toLowerCase().contains(value.toLowerCase())).toList();
+                case "titulo":
+                    filtros_mongo.setTitulo(value);
                     break;
                 case "etiquetas":
-                    hechos = hechos.stream().filter(
-                        hecho -> hecho.etiquetas().stream().
-                        anyMatch(e->e.toLowerCase().contains(value.toLowerCase()))).
-                        toList();
+                    filtros_mongo.setEtiquetas(value);
                     break;
                 case "origen":
-                    hechos = hechos.stream().filter(hecho-> hecho.origen().toLowerCase().contains(value.toLowerCase())).toList();
+                    filtros_mongo.setOrigen(value);
                     break;
                 case "ubicacion": 
-                    hechos = hechos.stream().filter(hecho-> hecho.ubicacion().toLowerCase().contains(value.toLowerCase())).toList();
+                    filtros_mongo.setUbicacion(value);
                     break;
-                case "activo":
-                    if (value.toLowerCase().contains("true")){
-                        hechos = hechos.stream().filter(hecho->  EstadoHechoEnum.ACTIVO.equals(hecho.estado())).toList();
-                    } else {
-                        hechos = hechos.stream().filter(hecho->  EstadoHechoEnum.BORRADO.equals(hecho.estado())).toList();
-                    }
-                    ;
+                case "estado":
+                    filtros_mongo.setEstado(value);
                     break;
                 case "categoria":
-                    hechos = hechos.stream().filter(hecho-> hecho.categoria().toString().toLowerCase().contains(value.toLowerCase())).toList();
+                    filtros_mongo.setCategoria(value);
                     break;
-                case "page":
-                    pagina = Integer.parseInt(value.toString());
-                    break;
-                case "pdi_nombre":
+                case "pdi_nombre": 
                     pdi_nombre = true;
-                    value_pdi_nombre = value.toLowerCase();
-                    //TODO PREGUNTAR URGENTEMENTE POR TITULO O ID
+                    filtros_mongo.setPdi_nombre(value);
+                    // //TODO PREGUNTAR URGENTEMENTE POR TITULO O ID
                     break;
                 case "pdi_descripcion":
                     pdi_descripcion = true;
-                    value_pdi_descripcion = value.toLowerCase();
-                    hechos = hechos.stream().filter(hecho->
-                        this.fachadaprocesadorPdI.buscarPorHecho(
-                            hecho.titulo()).stream().anyMatch(
-                                p->p.descripcion().toLowerCase().contains(value.toLowerCase())
-                                )
-                    ).toList();
+                    filtros_mongo.setPdi_descripcion(value);
                     //TODO NO VOY A FILTRAR NI EN PEDO POR URLIMAGEN
                     //TODO PREGUNTAR TAMBIEN SI CONTENIDO O DESCRIPCION ES LO QUE FILTRA
                     break;
                 case "pdi_lugar":
                     pdi_lugar=true;
-                    value_pdi_lugar = value.toLowerCase();
-                    hechos = hechos.stream().filter(hecho->
-                        this.fachadaprocesadorPdI.buscarPorHecho(
-                            hecho.titulo()).stream().anyMatch(
-                                p->p.lugar().toLowerCase().contains(value.toLowerCase())
-                                )
-                    ).toList(); 
+                    filtros_mongo.setPdi_lugar(value);
                     break;
                 case "pdi_etiquetas":
                     pdi_etiquetas = true;
-                    value_pdi_etiquetas= value.toLowerCase();
-                    hechos = hechos.stream().filter(hecho->
-                        this.fachadaprocesadorPdI.buscarPorHecho(
-                            hecho.titulo()).stream().anyMatch(
-                                p->p.etiquetas().stream().anyMatch(
-                                e->e.toLowerCase().contains(value.toLowerCase())))
-                    )
-                    .toList(); 
+                    filtros_mongo.setPdi_etiquetas(value);
                     //TODO PREGUNTAR URGENTEMENTE POR TITULO O ID
                     break;
                 default:
@@ -368,30 +342,35 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                     break;
             }
         }
-        if(pdi_etiquetas|| pdi_nombre || pdi_lugar || pdi_descripcion){
-           List<PdIDTO> pdis_hecho;
-            if(pdi_etiquetas){
-
+        List<HechoDTO> hechos = this.repositoryMongo.buscarConFiltros(filtros_mongo).stream().map(mongoMapper::mapDTO).toList();
+        if (pdi_etiquetas || pdi_nombre || pdi_lugar || pdi_descripcion) {
+            List<HechoDTO> hechosFiltrados = new ArrayList<>();
+            for (HechoDTO hecho : hechos) {
+                List<PdIDTO> pdis = this.fachadaprocesadorPdI.buscarPorHecho(hecho.id());
+                boolean cumple = true;
+                if (pdi_nombre) {
+                    cumple &= pdis.stream()
+                    .anyMatch(p->p.contenido().toLowerCase().contains(filtros_mongo.getPdi_nombre()));
+                }
+                if (pdi_lugar) {
+                    cumple &= pdis.stream()
+                    .anyMatch(p -> p.lugar().toLowerCase().contains(filtros_mongo.getPdi_lugar()));
+                }
+                if (pdi_descripcion) {
+                    cumple &= pdis.stream()
+                    .anyMatch(p -> p.descripcion().toLowerCase().contains(filtros_mongo.getPdi_descripcion()));
+                }
+                if (pdi_etiquetas) {
+                    cumple &= pdis.stream()
+                    .anyMatch(p -> p.etiquetas().stream()
+                    .anyMatch(e->e.toLowerCase().contains(filtros_mongo.getPdi_etiquetas())));
+                }
+                if (cumple) {
+                    hechosFiltrados.add(hecho);
+                }
             }
-            if(pdi_nombre){
-                hechos = hechos.stream().filter(hecho->
-                        this.fachadaprocesadorPdI.buscarPorHecho(
-                            hecho.titulo()).stream().anyMatch(
-                                p->p.contenido().toLowerCase().contains(value_pdi_nombre.toLowerCase())
-                                )
-                    ).toList(); 
-            }
-            if(pdi_lugar){
-
-            }
-            if(pdi_descripcion){
-                
-            }
-            
-
+            hechos = hechosFiltrados;
         }
-        int primer_indice = (pagina -1)*3;
-        int fin = Math.min(primer_indice+3,hechos.size());
-        return hechos.subList(primer_indice, Math.max(fin,0));
+        return hechos;
     }
 }
