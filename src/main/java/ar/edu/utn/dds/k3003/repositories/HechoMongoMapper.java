@@ -1,8 +1,11 @@
 package ar.edu.utn.dds.k3003.repositories;
 
+import org.springframework.stereotype.Component;
+
 import ar.edu.utn.dds.k3003.facades.dtos.HechoDTO;
 import ar.edu.utn.dds.k3003.model.HechoMongo;
 
+@Component
 public class HechoMongoMapper{
 
   public HechoDTO mapDTO(HechoMongo hecho){
