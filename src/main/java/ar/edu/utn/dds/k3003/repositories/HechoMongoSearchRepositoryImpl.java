@@ -46,11 +46,18 @@ public class HechoMongoSearchRepositoryImpl{
     }
 
     if (filtro.getEtiquetas() != null && !filtro.getEtiquetas().isBlank()) {
-        String pattern = "(?i).*" + Pattern.quote(filtro.getEtiquetas()) + "([^a-zA-Záéíóúñ]|$).*";
+        String pattern = "(?i).*" + Pattern.quote(filtro.getEtiquetas()) + ".*";
         query.addCriteria(Criteria.where("etiquetas").regex(pattern));
     }
 
-
+    if (filtro.getOrigen() != null && !filtro.getOrigen().isBlank()) {
+        String pattern = "(?i).*" + Pattern.quote(filtro.getOrigen()) + "([^a-zA-Záéíóúñ]|$).*";
+        query.addCriteria(Criteria.where("origen").regex(pattern));
+    }
+    if (filtro.getEstado() != null && !filtro.getEstado().isBlank()) {
+        String pattern = "(?i).*" + Pattern.quote(filtro.getEstado()) + "([^a-zA-Záéíóúñ]|$).*";
+        query.addCriteria(Criteria.where("estado").regex(pattern));
+    }
     return mongoTemplate.find(query, HechoMongo.class);
   }
 }
