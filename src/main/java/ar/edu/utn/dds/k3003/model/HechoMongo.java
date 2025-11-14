@@ -42,9 +42,11 @@ public class HechoMongo {
     @Field("estado")
     private EstadoHechoEnum estado = EstadoHechoEnum.ACTIVO;
 
-    @Field("pdi_ids")
-    private List<String> pdiIds = new ArrayList<>();
+    @Field("pdis")
+    private List<PdiMongo> pdiIds = new ArrayList<>();
 
+    @Field("solicitudes")
+    private List<SolicitudMongo> solicitudes = new ArrayList<>();
     public HechoMongo() {}
 
     public HechoMongo(

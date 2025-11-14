@@ -12,6 +12,7 @@ import ar.edu.utn.dds.k3003.clients.dto.ProcesamientoResponseDTO;
 import ar.edu.utn.dds.k3003.model.EstadoHechoEnum;
 import ar.edu.utn.dds.k3003.model.Hecho;
 import ar.edu.utn.dds.k3003.model.HechoMongo;
+import ar.edu.utn.dds.k3003.model.SolicitudMongo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import ar.edu.utn.dds.k3003.repositories.HechoMapper;
 import ar.edu.utn.dds.k3003.repositories.HechoMongoSearchRepositoryImpl;
 import ar.edu.utn.dds.k3003.repositories.HechoMongoMapper;
 import ar.edu.utn.dds.k3003.repositories.PdiMapper;
+import ar.edu.utn.dds.k3003.repositories.PdiMongoMapper;
 
 @Service
 public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
@@ -53,6 +55,8 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     private HechoMongoSearchRepositoryImpl repositoryMongo;
     @Autowired
     private HechoMongoMapper mongoMapper;
+    @Autowired
+    private PdiMongoMapper mongoMapperPdi;
     Fachada() {
     }
 
@@ -139,7 +143,6 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
             }
         }
         this.repositoryMongo.guardarDesdeDTO(this.mongoMapper.mapDTO(hechoDTO));
-        //TODO AGREGAR AL REPO MONGO
         return hechoMapper.map(this.hechoRepository.save(hechoMapper.map(hechoDTO)));
     }
 
@@ -219,7 +222,9 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
         HechoMongo hechoEncontrado = this.repositoryMongo.buscarPorId(hechoId);
         if (hechoEncontrado != null) {
             hechoEncontrado.setEstado(nuevoEstado);
-            this.repositoryMongo.guardarDesdeDTO(hechoEncontrado);  // upsert en Mongo
+            hechoEncontrado.setSolicitudes(this.solicitudesClient.findAllByHecho(hechoId).stream().map(dto -> new SolicitudMongo(dto.descripcion(), dto.estado())).toList());
+            this.repositoryMongo.guardarDesdeDTO(hechoEncontrado);
+            // upsert en Mongo
         }
 
         return this.hechoMapper.map(guardado);
@@ -268,6 +273,14 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
         if (proc.etiquetas() != null) union.addAll(proc.etiquetas());
         hecho.setEtiquetas(new java.util.ArrayList<>(union));
 
+        HechoMongo hechoEncontrado = this.repositoryMongo.buscarPorId(hecho.getId());
+        if (hechoEncontrado != null) {
+            hechoEncontrado.setEtiquetas(hecho.getEtiquetas());
+            List<PdIDTO> pdis_hecho = this.fachadaprocesadorPdI.buscarPorHecho(hechoEncontrado.getId());
+            hechoEncontrado.setPdiIds(pdis_hecho.stream().map(mongoMapperPdi::mapDTO).toList());
+            this.repositoryMongo.guardarDesdeDTO(hechoEncontrado);  // upsert en Mongo
+        }
+
         String pdiId = proc.pdiId();
         if (pdiId != null && !pdiId.isBlank() && !hecho.getPdiIds().contains(pdiId)) {
             hecho.getPdiIds().add(pdiId);
@@ -279,6 +292,10 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
         return proc;
     }
 
+    @Override
+    public List<HechoMongo> buscarMongoTodos(){
+        return this.repositoryMongo.buscarTodos();
+    }
     public List<HechoDTO> buscarHechosSinSolicitudes() {
         return hechoRepository.allHechos()
                 .stream()
@@ -290,11 +307,11 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
     @Override
     public List<HechoDTO> buscarHechosFiltrados(Map<String,String> filtros){
         String key;
-        Boolean pdi_nombre = false;
-        Boolean pdi_etiquetas = false;
-        Boolean pdi_descripcion = false;
-        Boolean pdi_lugar = false;
-        HechoFiltroDTO filtros_mongo = new HechoFiltroDTO(null,null,null,null,null,null,null,null,null,null);
+        //Boolean pdi_contenido = false;
+        //Boolean pdi_etiquetas = false;
+        //Boolean pdi_descripcion = false;
+        //Boolean pdi_lugar = false;
+        HechoFiltroDTO filtros_mongo = new HechoFiltroDTO(null,null,null,null,null,null,null,null,null,null,null);
         for(Map.Entry<String, String> filtro : filtros.entrySet()){
             key = filtro.getKey().toLowerCase();
             String value = filtro.getValue();
@@ -317,25 +334,21 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                 case "categoria":
                     filtros_mongo.setCategoria(value);
                     break;
-                case "pdi_nombre": 
-                    pdi_nombre = true;
-                    filtros_mongo.setPdi_nombre(value);
-                    // //TODO PREGUNTAR URGENTEMENTE POR TITULO O ID
+                case "pdi_contenido": 
+                    //pdi_contenido = true;
+                    filtros_mongo.setPdi_contenido(value);
                     break;
                 case "pdi_descripcion":
-                    pdi_descripcion = true;
+                    //pdi_descripcion = true;
                     filtros_mongo.setPdi_descripcion(value);
-                    //TODO NO VOY A FILTRAR NI EN PEDO POR URLIMAGEN
-                    //TODO PREGUNTAR TAMBIEN SI CONTENIDO O DESCRIPCION ES LO QUE FILTRA
                     break;
                 case "pdi_lugar":
-                    pdi_lugar=true;
+                    //pdi_lugar=true;
                     filtros_mongo.setPdi_lugar(value);
                     break;
                 case "pdi_etiquetas":
-                    pdi_etiquetas = true;
+                    //pdi_etiquetas = true;
                     filtros_mongo.setPdi_etiquetas(value);
-                    //TODO PREGUNTAR URGENTEMENTE POR TITULO O ID
                     break;
                 default:
                     System.out.println("Filtro no reconocido"); 
@@ -343,34 +356,34 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
             }
         }
         List<HechoDTO> hechos = this.repositoryMongo.buscarConFiltros(filtros_mongo).stream().map(mongoMapper::mapDTO).toList();
-        if (pdi_etiquetas || pdi_nombre || pdi_lugar || pdi_descripcion) {
-            List<HechoDTO> hechosFiltrados = new ArrayList<>();
-            for (HechoDTO hecho : hechos) {
-                List<PdIDTO> pdis = this.fachadaprocesadorPdI.buscarPorHecho(hecho.id());
-                boolean cumple = true;
-                if (pdi_nombre) {
-                    cumple &= pdis.stream()
-                    .anyMatch(p->p.contenido().toLowerCase().contains(filtros_mongo.getPdi_nombre()));
-                }
-                if (pdi_lugar) {
-                    cumple &= pdis.stream()
-                    .anyMatch(p -> p.lugar().toLowerCase().contains(filtros_mongo.getPdi_lugar()));
-                }
-                if (pdi_descripcion) {
-                    cumple &= pdis.stream()
-                    .anyMatch(p -> p.descripcion().toLowerCase().contains(filtros_mongo.getPdi_descripcion()));
-                }
-                if (pdi_etiquetas) {
-                    cumple &= pdis.stream()
-                    .anyMatch(p -> p.etiquetas().stream()
-                    .anyMatch(e->e.toLowerCase().contains(filtros_mongo.getPdi_etiquetas())));
-                }
-                if (cumple) {
-                    hechosFiltrados.add(hecho);
-                }
-            }
-            hechos = hechosFiltrados;
-        }
+        // if (pdi_etiquetas || pdi_contenido || pdi_lugar || pdi_descripcion) {
+        //     List<HechoDTO> hechosFiltrados = new ArrayList<>();
+        //     for (HechoDTO hecho : hechos) {
+        //         List<PdIDTO> pdis = this.fachadaprocesadorPdI.buscarPorHecho(hecho.id());
+        //         boolean cumple = true;
+        //         if (pdi_contenido) {
+        //             cumple &= pdis.stream()
+        //             .anyMatch(p->p.contenido().toLowerCase().contains(filtros_mongo.getPdi_contenido()));
+        //         }
+        //         if (pdi_lugar) {
+        //             cumple &= pdis.stream()
+        //             .anyMatch(p -> p.lugar().toLowerCase().contains(filtros_mongo.getPdi_lugar()));
+        //         }
+        //         if (pdi_descripcion) {
+        //             cumple &= pdis.stream()
+        //             .anyMatch(p -> p.descripcion().toLowerCase().contains(filtros_mongo.getPdi_descripcion()));
+        //         }
+        //         if (pdi_etiquetas) {
+        //             cumple &= pdis.stream()
+        //             .anyMatch(p -> p.etiquetas().stream()
+        //             .anyMatch(e->e.toLowerCase().contains(filtros_mongo.getPdi_etiquetas())));
+        //         }
+        //         if (cumple) {
+        //             hechosFiltrados.add(hecho);
+        //         }
+        //     }
+        //     hechos = hechosFiltrados;
+        // }
         return hechos;
     }
 }

@@ -11,12 +11,13 @@ public class HechoFiltroDTO {
     private String ubicacion;
     private String etiquetas;
     private String origen;
-    private String estado;
+    private String estado; //ELIMINABLE EN LA VERSION DEFAULT
     private String pdi_nombre;
     private String pdi_etiquetas;
+    private String pdi_contenido;
     private String pdi_descripcion;
     private String pdi_lugar;
-    public HechoFiltroDTO(String titulo2,String categoria_2,String ubicacion_2,String etiquetas_2,String origen_2,String estado_2, String pdi_nombre_2, String pdi_descripcion_2, String pdi_etiquetas_2,String pdi_lugar_2){
+    public HechoFiltroDTO(String titulo2,String categoria_2,String ubicacion_2,String etiquetas_2,String origen_2,String estado_2, String pdi_nombre_2, String pdi_descripcion_2, String pdi_etiquetas_2,String pdi_lugar_2,String pdi_contenido2){
         titulo = titulo2;
         categoria = categoria_2;
         ubicacion = ubicacion_2;

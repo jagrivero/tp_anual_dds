@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import java.util.regex.Pattern;
+
 import java.util.List;
 
 @Component
@@ -30,6 +31,8 @@ public class HechoMongoSearchRepositoryImpl{
   }
   public List<HechoMongo> buscarConFiltros(HechoFiltroDTO filtro) {
     Query query = new Query();
+   /* query.addCriteria( TODO VERSION COMO DEFAULT
+    Criteria.where("solicitudes").not().elemMatch(Criteria.where("estado").is("ACEPTADA")));*/
     if (filtro.getTitulo() != null && !filtro.getTitulo().isBlank()) {
       String pattern = "(?i).*" + Pattern.quote(filtro.getTitulo()) + "([^a-zA-Záéíóúñ]|$).*";
       query.addCriteria(Criteria.where("titulo").regex(pattern));
@@ -57,7 +60,27 @@ public class HechoMongoSearchRepositoryImpl{
     if (filtro.getEstado() != null && !filtro.getEstado().isBlank()) {
         String pattern = "(?i).*" + Pattern.quote(filtro.getEstado()) + "([^a-zA-Záéíóúñ]|$).*";
         query.addCriteria(Criteria.where("estado").regex(pattern));
+    } //VERSION NO DEFAULT
+    if (filtro.getPdi_contenido() != null && !filtro.getPdi_contenido().isBlank()) {
+        String pattern = "(?i).*" + Pattern.quote(filtro.getPdi_contenido()) + ".*";
+        query.addCriteria(Criteria.where("pdis.contenido").regex(pattern));
+    }
+    if (filtro.getPdi_descripcion() != null && !filtro.getPdi_descripcion().isBlank()) {
+        String pattern = "(?i).*" + Pattern.quote(filtro.getPdi_descripcion()) + ".*";
+        query.addCriteria(Criteria.where("pdis.descripcion").regex(pattern));
+    }
+    if (filtro.getPdi_lugar() != null && !filtro.getPdi_lugar().isBlank()) {
+        String pattern = "(?i).*" + Pattern.quote(filtro.getPdi_lugar()) + ".*";
+        query.addCriteria(Criteria.where("pdis.lugar").regex(pattern));
+    }
+
+    if (filtro.getPdi_etiquetas() != null && !filtro.getPdi_etiquetas().isBlank()) {
+      String pattern = "(?i).*" + Pattern.quote(filtro.getPdi_etiquetas()) + ".*";
+      query.addCriteria(Criteria.where("pdis.tags").regex(pattern));
     }
     return mongoTemplate.find(query, HechoMongo.class);
+  }
+  public List<HechoMongo> buscarTodos(){
+    return mongoTemplate.findAll(HechoMongo.class);
   }
 }
