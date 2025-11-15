@@ -1,10 +1,6 @@
 package ar.edu.utn.dds.k3003.app;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 
 import ar.edu.utn.dds.k3003.WorkerHandler;
 import ar.edu.utn.dds.k3003.clients.SolicitudesClient;
@@ -260,7 +256,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
         if (proc == null) throw new IllegalStateException("ProcesadorPdI devolvió nulo");
 
         // 2) Si NO se procesó, no persistimos nada y devolvemos tal cual
-        if (!"PROCESSING".equalsIgnoreCase(proc.estado())) {
+        if (!"PROCESSED".equalsIgnoreCase(proc.estado())) {
             return proc;
         }
 
@@ -302,6 +298,44 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                 .filter(h -> solicitudesClient.findByHecho(h.getId()).isEmpty())
                 .map(hechoMapper::map)
                 .toList();
+    }
+
+    public ProcesamientoResponseDTO aplicarProcesamiento(String hechoId, ProcesamientoResponseDTO proc) {
+
+        var hecho = hechoRepository.findById(hechoId);
+
+        // --- 3) Actualizar etiquetas ---
+        if (hecho.getEtiquetas() == null) hecho.setEtiquetas(new ArrayList<>());
+
+        LinkedHashSet<String> union = new LinkedHashSet<>(hecho.getEtiquetas());
+        if (proc.etiquetas() != null) union.addAll(proc.etiquetas());
+        hecho.setEtiquetas(new ArrayList<>(union));
+
+        // --- 4) Actualizar pdiIds ---
+        if (hecho.getPdiIds() == null) hecho.setPdiIds(new ArrayList<>());
+
+        if (proc.pdiId() != null &&
+                !proc.pdiId().isBlank() &&
+                !hecho.getPdiIds().contains(proc.pdiId())) {
+            hecho.getPdiIds().add(proc.pdiId());
+        }
+
+        // Persistir en relacional
+        hechoRepository.save(hecho);
+
+        // Persistir en Mongo
+        HechoMongo hechoMongo = repositoryMongo.buscarPorId(hecho.getId());
+        if (hechoMongo != null) {
+
+            hechoMongo.setEtiquetas(hecho.getEtiquetas());
+
+            List<PdIDTO> pdis = this.fachadaprocesadorPdI.buscarPorHecho(hechoMongo.getId());
+            hechoMongo.setPdiIds(pdis.stream().map(mongoMapperPdi::mapDTO).toList());
+
+            repositoryMongo.guardarDesdeDTO(hechoMongo);
+        }
+
+        return proc;
     }
 
     @Override
@@ -355,6 +389,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaFuente {
                     break;
             }
         }
+
         List<HechoDTO> hechos = this.repositoryMongo.buscarConFiltros(filtros_mongo).stream().map(mongoMapper::mapDTO).toList();
         // if (pdi_etiquetas || pdi_contenido || pdi_lugar || pdi_descripcion) {
         //     List<HechoDTO> hechosFiltrados = new ArrayList<>();
